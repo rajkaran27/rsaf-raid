@@ -9,7 +9,10 @@ interface Params {
     fruitId: string;
 }
 
-export async function POST(req: Request, { params }: { params: Params }) {
+export async function POST(
+    req: Request,
+    { params }: { params: Promise<{ fruitId: string }> }
+) {
     try {
 
 
@@ -35,7 +38,10 @@ export async function POST(req: Request, { params }: { params: Params }) {
         }
 
         const customerId = decoded.id;
-        const fruitId = parseInt(params.fruitId, 10);
+
+        const fid = (await params).fruitId
+
+        const fruitId = parseInt(fid, 10);
 
         if (isNaN(fruitId)) {
             return NextResponse.json({ error: "Invalid fruit ID" }, { status: 400 });
