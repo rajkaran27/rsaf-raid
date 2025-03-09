@@ -6,12 +6,14 @@ import { useRouter } from "next/navigation"; // Import Next.js router
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
+
+
 export default function LoginForm() {
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState("");
     const router = useRouter(); // Initialize router
 
-    const { register, handleSubmit, reset } = useForm();
+    const { register, handleSubmit } = useForm();
 
     const onSubmit = async (data: any) => {
         setLoading(true);

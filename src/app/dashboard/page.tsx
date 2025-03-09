@@ -1,18 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Apple, Package, Plus, ShoppingCart, Eye, CheckCircle, XCircle } from "lucide-react";
-import { useRouter } from "next/navigation";
+import {  Plus, Eye, CheckCircle, XCircle } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import LogoutButton from "@/components/LogoutButton";
 
 interface Fruit {
   id: number;
@@ -42,10 +40,7 @@ interface Order {
 // Remove the static `initialFruits`
 export default function Dashboard() {
   const [fruits, setFruits] = useState<Fruit[]>([]);
-  const [orders, setOrders] = useState([]);
   const [newFruit, setNewFruit] = useState({ name: "", stock: 0, price: 0, category: "" });
-  const [searchQuery, setSearchQuery] = useState("");
-  const router = useRouter();
 
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [ordersList, setOrdersList] = useState<Order[]>([]);
@@ -65,7 +60,7 @@ export default function Dashboard() {
       day: "numeric",
     });
   };
-
+  
 
   // Function to fetch fruits from API
   const fetchFruits = async () => {
@@ -101,10 +96,6 @@ export default function Dashboard() {
     fetchFruits();
   }, []);
 
-  // Filter fruits based on search query
-  const filteredFruits = fruits.filter((fruit) =>
-    fruit.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   const handleAddFruit = async () => {
     try {

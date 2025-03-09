@@ -20,7 +20,7 @@ export async function POST(req: Request) {
         try {
             decoded = jwt.verify(token, SECRET_KEY);
         } catch (error) {
-            return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+            return NextResponse.json({ error }, { status: 401 });
         }
 
         if (decoded.role !== "OWNER") {
