@@ -1,0 +1,72 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String   @default("Unknown") // Add a default value
+  password  String
+  role      Role     @default(CUSTOMER) // Role can be CUSTOMER or OWNER
+  fruits    Fruit[]  @relation("FruitOwner") // Only owners can have fruits
+  orders    Order[]  @relation("CustomerOrders") // Only customers can place orders
+  cart      Cart[]   @relation("CustomerCart") // Customers can have a cart
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Fruit {
+  id        Int      @id @default(autoincrement())
+  name      String
+  price     Float
+  stock     Int
+  ownerId   Int
+  owner     User     @relation("FruitOwner", fields: [ownerId], references: [id])
+  orders    Order[]  @relation("OrderFruits")
+  cartItems Cart[]   @relation("CartFruits") // Fruits can be in multiple carts
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Order {
+  id          Int          @id @default(autoincrement())
+  customerId  Int
+  customer    User         @relation("CustomerOrders", fields: [customerId], references: [id])
+  fruits      Fruit[]      @relation("OrderFruits")
+  totalAmount Float
+  status      OrderStatus  @default(PENDING) // Order status (e.g., PENDING, FULFILLED)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Cart {
+  id          Int      @id @default(autoincrement())
+  customerId  Int
+  customer    User     @relation("CustomerCart", fields: [customerId], references: [id])
+  fruitId     Int
+  fruit       Fruit    @relation("CartFruits", fields: [fruitId], references: [id])
+  quantity    Int      @default(1) // Quantity of the fruit in the cart
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum Role {
+  CUSTOMER
+  OWNER
+}
+
+enum OrderStatus {
+  PENDING
+  FULFILLED
+}
