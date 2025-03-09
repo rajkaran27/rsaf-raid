@@ -1,9 +1,15 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 
 const prisma = new PrismaClient();
 const SECRET_KEY = process.env.JWT_SECRET || "your-secret-key";
+
+// Define the expected payload structure of the JWT
+interface DecodedToken extends JwtPayload {
+    role: string;
+    id: number;
+}
 
 export async function POST(req: Request) {
     try {
@@ -15,10 +21,10 @@ export async function POST(req: Request) {
         }
 
         const token = authHeader.split(" ")[1];
-        let decoded;
+        let decoded: DecodedToken;
 
         try {
-            decoded = jwt.verify(token, SECRET_KEY);
+            decoded = jwt.verify(token, SECRET_KEY) as DecodedToken;
         } catch (error) {
             return NextResponse.json({ error }, { status: 401 });
         }

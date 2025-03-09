@@ -211,13 +211,13 @@ export default function Dashboard() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {filteredFruits.map((fruit) => (
+                      {/* {filteredFruits.map((fruit) => (
                         <TableRow key={fruit.id}>
                           <TableCell>{fruit.name}</TableCell>
                           <TableCell className="text-right">{fruit.stock}</TableCell>
                           <TableCell className="text-right">${fruit.price.toFixed(2)}</TableCell>
                         </TableRow>
-                      ))}
+                      ))} */}
                     </TableBody>
                   </Table>
                 </CardContent>
@@ -251,7 +251,8 @@ export default function Dashboard() {
                           <TableCell>{formatDate(order.createdAt)}</TableCell>
                           <TableCell className="text-right">${order.amountPaid.toFixed(2)}</TableCell>
                           <TableCell>
-                            <Badge
+                          {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                            {/* <Badge
                               variant={
                                 order.status === "fulfilled"
                                   ? "success"
@@ -260,8 +261,8 @@ export default function Dashboard() {
                                     : "outline"
                               }
                             >
-                              {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                            </Badge>
+                              
+                            </Badge> */}
                           </TableCell>
                           <TableCell className="text-right">
                             <div className="flex justify-end gap-2">
@@ -284,7 +285,8 @@ export default function Dashboard() {
                                       <div>{formatDate(order.createdAt)}</div>
                                       <div className="font-medium">Status:</div>
                                       <div>
-                                        <Badge
+                                      {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                                        {/* <Badge
                                           variant={
                                             order.status === "fulfilled"
                                               ? "success"
@@ -293,8 +295,8 @@ export default function Dashboard() {
                                                 : "outline"
                                           }
                                         >
-                                          {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                                        </Badge>
+                                         
+                                        </Badge> */}
                                       </div>
                                     </div>
 
