@@ -22,7 +22,7 @@ interface Fruit {
     name: string;
     stock: number;
     price: number;
-    OwnerName:string;
+    OwnerName: string;
 }
 
 
@@ -33,6 +33,7 @@ export default function CustomerPage() {
     const fetchFruits = async () => {
         try {
             const token = localStorage.getItem("token");
+            console.log(token)
             if (!token) {
                 alert("Unauthorized: Please log in.");
                 return;
@@ -62,6 +63,28 @@ export default function CustomerPage() {
         fetchFruits();
     }, []);
 
+    const onSubmit = async (fruitId: number) => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            alert("Unauthorized: Please log in.");
+            return;
+        }
+
+        const response = await fetch(`/api/customer/cart/add/${fruitId}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+        });
+
+        const result = await response.json();
+        console.log(result)
+        if (response.ok) {
+
+        }
+    };
+
 
     return (
         <div className="flex min-h-screen bg-background">
@@ -69,36 +92,9 @@ export default function CustomerPage() {
             <div className="flex flex-1 flex-col">
 
                 <main className="flex-1 overflow-auto p-4 sm:p-6">
-                    {/* <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"> */}
-                    {/* <div className="relative max-w-md">
-                            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                            <Input
-                                type="search"
-                                placeholder="Search fruits..."
-                                className="w-full pl-8 md:w-[260px]"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                            />
-                        </div> */}
-
-                    {/* <div className="flex items-center gap-2">
-                            <Select value={sortOption} onValueChange={setSortOption}>
-                                <SelectTrigger className="w-[180px]">
-                                    <SelectValue placeholder="Sort by" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="featured">Featured</SelectItem>
-                                    <SelectItem value="price-low">Price: Low to High</SelectItem>
-                                    <SelectItem value="price-high">Price: High to Low</SelectItem>
-                                    <SelectItem value="rating">Highest Rated</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div> */}
-                    {/* </div> */}
-
                     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                         {
-                            fruits.map((fruit,index) => (
+                            fruits.map((fruit, index) => (
                                 <div key={index}>
                                     <Card key={fruit.id} className="overflow-hidden">
                                         {/* <div className="aspect-square relative">
@@ -133,11 +129,9 @@ export default function CustomerPage() {
                                                 <Badge variant="outline">{fruit.category}</Badge>
                                             </div> */}
                                         </CardContent>
-                                        <CardFooter className="p-4 pt-0">
-                                            <div>
-                                                ${fruit.price}
-                                            </div>
-                                            <Button>
+                                        <CardFooter className="p-4 pt-0 flex items-center justify-between">
+                                            <div className="text-lg font-bold">${fruit.price.toFixed(2)}</div>
+                                            <Button onClick={() => onSubmit(fruit.id)} size="sm" className="transition-all hover:scale-105">
                                                 <ShoppingBag className="mr-2 h-4 w-4" />
                                                 Add to Cart
                                             </Button>

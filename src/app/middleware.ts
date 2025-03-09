@@ -11,7 +11,7 @@ export function middleware(req: NextRequest) {
     if (!token) {
         // Redirect unauthenticated users to login, except for the root page
         if (pathname !== "/") {
-            return NextResponse.redirect(new URL("/login", req.url));
+            return NextResponse.redirect(new URL("/", req.url));
         }
         return NextResponse.next();
     }
@@ -19,17 +19,14 @@ export function middleware(req: NextRequest) {
     try {
         const decoded = jwt.verify(token, SECRET_KEY) as { role: string; exp: number };
 
-        // **Redirect if the token is expired**
         if (decoded.exp * 1000 < Date.now()) {
-            return NextResponse.redirect(new URL("/login", req.url));
+            return NextResponse.redirect(new URL("/", req.url));
         }
 
-        // **Prevent authenticated users from visiting the root page**
         if (pathname === "/") {
             return NextResponse.redirect(new URL("/dashboard", req.url));
         }
 
-        // **Role-based access control**
         if (pathname.startsWith("/dashboard") && decoded.role !== "OWNER") {
             return NextResponse.redirect(new URL("/shop", req.url));
         }
@@ -40,13 +37,12 @@ export function middleware(req: NextRequest) {
 
         return NextResponse.next();
     } catch (err) {
-        // **Handle expired tokens explicitly**
         if (err instanceof TokenExpiredError) {
-            return NextResponse.redirect(new URL("/login", req.url));
+            return NextResponse.redirect(new URL("/", req.url));
         }
 
         // **Catch other JWT errors (invalid token, malformed, etc.)**
-        return NextResponse.redirect(new URL("/login", req.url));
+        return NextResponse.redirect(new URL("/", req.url));
     }
 }
 

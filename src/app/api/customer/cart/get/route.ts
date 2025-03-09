@@ -2,12 +2,14 @@ import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import jwt, { TokenExpiredError } from "jsonwebtoken";
 
-
 const prisma = new PrismaClient();
 const SECRET_KEY = process.env.JWT_SECRET || "your-secret-key";
 
+
 export async function GET(req: Request) {
     try {
+
+
         const authHeader = req.headers.get("authorization");
         if (!authHeader) {
             return NextResponse.redirect(new URL("/", req.url));
@@ -29,28 +31,27 @@ export async function GET(req: Request) {
             return NextResponse.json({ error: "Forbidden" }, { status: 403 });
         }
 
-        const fruits = await prisma.fruit.findMany({
+        const customerId = decoded.id
+        const cartItems = await prisma.cart.findMany({
             where: {
-                stock: { gt: 0 }
+                customerId
             },
             include: {
-                owner: {
+                fruit: {
                     select: {
-                        name: true
+                        name: true,
+                        price: true,
+                        owner: {
+                            select: {
+                                name: true // Owner's name
+                            }
+                        }
                     }
                 }
             }
         });
-
-        // doing this because prisma cant use AS
-        // Map the result to rename "name" to "OwnerName"
-        const formattedFruits = fruits.map(fruit => ({
-            ...fruit,
-            OwnerName: fruit.owner.name, // Rename owner name   
-            owner: undefined // Remove the original owner field if not needed
-        }));
-
-        return NextResponse.json({ fruits: formattedFruits }, { status: 200 });
+        console.log(cartItems)
+        return NextResponse.json({ cart: cartItems }, { status: 200 });
     } catch (error) {
         console.error(error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

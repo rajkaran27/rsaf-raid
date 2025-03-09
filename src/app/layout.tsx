@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import LogoutButton from "@/components/LogoutButton";
-
+import Navbar from "@/components/Navbar";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -31,14 +30,7 @@ export default function RootLayout({
         <div className="flex min-h-screen bg-background">
 
           <div className="flex flex-1 flex-col">
-            <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-4 sm:px-6">
-              <div className="flex-1">
-                <h1 className="text-lg font-semibold">Fresh Fruits Marketplace</h1>
-              </div>
-              <div>
-                <LogoutButton/>
-              </div>
-            </header>
+            <Navbar/>
             {children}
           </div>
         </div>
