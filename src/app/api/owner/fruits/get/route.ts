@@ -28,6 +28,8 @@ export async function GET(req: Request) {
             return NextResponse.json({ error: "Forbidden" }, { status: 403 });
         }
 
+
+
         // Fetch fruits owned by the logged-in owner
         const fruits = await prisma.fruit.findMany({
             where: { ownerId: decoded.id },

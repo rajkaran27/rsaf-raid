@@ -50,7 +50,6 @@ export async function GET(req: Request) {
                 }
             }
         });
-        console.log(cartItems)
         return NextResponse.json({ cart: cartItems }, { status: 200 });
     } catch (error) {
         console.error(error);
