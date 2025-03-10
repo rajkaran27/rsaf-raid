@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 
+import { useRouter } from "next/navigation"
+
 interface Fruit {
     id: number;
     name: string;
@@ -20,12 +22,14 @@ export default function CustomerPage() {
 
     const [fruits, setFruits] = useState<Fruit[]>([]);
 
+    const router = useRouter()
+
     const fetchFruits = async () => {
         try {
             const token = localStorage.getItem("token");
             console.log(token)
             if (!token) {
-                alert("Unauthorized: Please log in.");
+                router.push('/')
                 return;
             }
 
@@ -56,7 +60,7 @@ export default function CustomerPage() {
     const onSubmit = async (fruitId: number) => {
         const token = localStorage.getItem("token");
         if (!token) {
-            alert("Unauthorized: Please log in.");
+            router.push('/')
             return;
         }
 

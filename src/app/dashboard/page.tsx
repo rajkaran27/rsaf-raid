@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { Plus, Eye, CheckCircle, XCircle } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -11,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useRouter } from "next/navigation";
 
 interface Fruit {
   id: number;
@@ -52,13 +52,7 @@ export default function Dashboard() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [ordersList, setOrdersList] = useState<Order[]>([]);
 
-  // const handleFulfillOrder = (orderId: number) => {
-  //   setOrdersList(ordersList.map((order) => (order.id === orderId ? { ...order, status: "fulfilled" } : order)))
-  // }
-
-  // const handleCancelOrder = (orderId: number) => {
-  //   setOrdersList(ordersList.map((order) => (order.id === orderId ? { ...order, status: "cancelled" } : order)))
-  // }
+  const router = useRouter()
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -74,7 +68,7 @@ export default function Dashboard() {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        alert("Unauthorized: Please log in.");
+        router.push('/')
         return;
       }
 
@@ -102,7 +96,7 @@ export default function Dashboard() {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        alert("Unauthorized: Please log in.");
+        router.push('/')
         return;
       }
 
@@ -137,7 +131,7 @@ export default function Dashboard() {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        alert("Unauthorized: Please log in.");
+        router.push('/')
         return;
       }
 
@@ -168,7 +162,7 @@ export default function Dashboard() {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        alert("Unauthorized: Please log in.");
+        router.push('/')
         return;
       }
 

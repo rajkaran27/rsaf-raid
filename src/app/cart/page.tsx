@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { useRouter } from "next/navigation"
 
 interface FruitItem {
     id: number;
@@ -26,12 +27,12 @@ export default function Cart() {
 
     const [fruits, setFruits] = useState<FruitItem[]>([]);
 
-
+    const router = useRouter()
     const fetchFruits = async () => {
         try {
             const token = localStorage.getItem("token");
             if (!token) {
-                alert("Unauthorized: Please log in.");
+                router.push('/')
                 return;
             }
 
@@ -67,7 +68,7 @@ export default function Cart() {
         try {
             const token = localStorage.getItem("token");
             if (!token) {
-                alert("Unauthorized: Please log in.");
+                router.push('/')
                 return;
             }
 
