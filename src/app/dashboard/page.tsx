@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {  Plus, Eye, CheckCircle, XCircle } from "lucide-react";
+import { Plus, Eye, CheckCircle, XCircle } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -21,22 +21,29 @@ interface Fruit {
 
 interface OrderItem {
   id: number;
-  name: string;
+  orderId: number;
+  fruitId: number;
   quantity: number;
   price: number;
+  fruit: Fruit;
+}
+
+interface Customer {
+  id: number;
+  name: string;
+  email: string;
 }
 
 interface Order {
   id: number;
-  customerName: string; // Added this field
-  items: OrderItem[]; // Added this field
+  customerId: number;
   totalAmount: number;
-  amountPaid: number; // Added this field
-  status: string;
-  createdAt: string; // Change from Date to string
-  updatedAt: string; // Change from Date to string
+  status: "PENDING" | "COMPLETED" | "CANCELLED"; // Assuming possible statuses
+  createdAt: string;
+  updatedAt: string;
+  customer: Customer;
+  orderItems: OrderItem[];
 }
-
 // Remove the static `initialFruits`
 export default function Dashboard() {
   const [fruits, setFruits] = useState<Fruit[]>([]);
@@ -45,13 +52,13 @@ export default function Dashboard() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [ordersList, setOrdersList] = useState<Order[]>([]);
 
-  const handleFulfillOrder = (orderId: number) => {
-    setOrdersList(ordersList.map((order) => (order.id === orderId ? { ...order, status: "fulfilled" } : order)))
-  }
+  // const handleFulfillOrder = (orderId: number) => {
+  //   setOrdersList(ordersList.map((order) => (order.id === orderId ? { ...order, status: "fulfilled" } : order)))
+  // }
 
-  const handleCancelOrder = (orderId: number) => {
-    setOrdersList(ordersList.map((order) => (order.id === orderId ? { ...order, status: "cancelled" } : order)))
-  }
+  // const handleCancelOrder = (orderId: number) => {
+  //   setOrdersList(ordersList.map((order) => (order.id === orderId ? { ...order, status: "cancelled" } : order)))
+  // }
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -60,7 +67,7 @@ export default function Dashboard() {
       day: "numeric",
     });
   };
-  
+
 
   // Function to fetch fruits from API
   const fetchFruits = async () => {
@@ -91,9 +98,38 @@ export default function Dashboard() {
     }
   };
 
+  const fetchOrders = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("Unauthorized: Please log in.");
+        return;
+      }
+
+      const response = await fetch("/api/owner/orders/get", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.error || "Failed to fetch orders");
+        return;
+      }
+      console.log(data.orders)
+      setOrdersList(data.orders);
+    } catch (error) {
+      console.error("Error fetching fruits:", error);
+    }
+  }
+
   // Fetch fruits when component mounts
   useEffect(() => {
     fetchFruits();
+    fetchOrders()
   }, []);
 
 
@@ -160,7 +196,7 @@ export default function Dashboard() {
 
       {/* Main Content */}
       <div className="flex flex-1 flex-col">
-       
+
         {/* Dashboard Content */}
         <main className="flex-1 overflow-auto p-4 sm:p-6">
           <Tabs defaultValue="inventory">
@@ -211,13 +247,13 @@ export default function Dashboard() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {/* {filteredFruits.map((fruit) => (
+                      {fruits.map((fruit) => (
                         <TableRow key={fruit.id}>
                           <TableCell>{fruit.name}</TableCell>
                           <TableCell className="text-right">{fruit.stock}</TableCell>
                           <TableCell className="text-right">${fruit.price.toFixed(2)}</TableCell>
                         </TableRow>
-                      ))} */}
+                      ))}
                     </TableBody>
                   </Table>
                 </CardContent>
@@ -246,23 +282,13 @@ export default function Dashboard() {
                       {ordersList.map((order) => (
                         <TableRow key={order.id}>
                           <TableCell>{order.id}</TableCell>
-                          <TableCell>{order.customerName}</TableCell>
-                          <TableCell>{order.items.length} items</TableCell>
+                          <TableCell>{order.customer.name}</TableCell>
+                          <TableCell>{order.orderItems.length} items</TableCell>
                           <TableCell>{formatDate(order.createdAt)}</TableCell>
-                          <TableCell className="text-right">${order.amountPaid.toFixed(2)}</TableCell>
+                          <TableCell className="text-right">${order.totalAmount.toFixed(2)}</TableCell>
                           <TableCell>
-                          {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                            {/* <Badge
-                              variant={
-                                order.status === "fulfilled"
-                                  ? "success"
-                                  : order.status === "cancelled"
-                                    ? "destructive"
-                                    : "outline"
-                              }
-                            >
-                              
-                            </Badge> */}
+                            {order.status.charAt(0).toUpperCase() + order.status.slice(1).toLowerCase()}
+                            
                           </TableCell>
                           <TableCell className="text-right">
                             <div className="flex justify-end gap-2">
@@ -280,23 +306,13 @@ export default function Dashboard() {
                                   <div className="grid gap-4 py-4">
                                     <div className="grid grid-cols-2 gap-2">
                                       <div className="font-medium">Customer:</div>
-                                      <div>{order.customerName}</div>
+                                      {/* <div>{order.customer.name}</div> */}
                                       <div className="font-medium">Date:</div>
                                       <div>{formatDate(order.createdAt)}</div>
                                       <div className="font-medium">Status:</div>
                                       <div>
-                                      {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                                        {/* <Badge
-                                          variant={
-                                            order.status === "fulfilled"
-                                              ? "success"
-                                              : order.status === "cancelled"
-                                                ? "destructive"
-                                                : "outline"
-                                          }
-                                        >
-                                         
-                                        </Badge> */}
+                                        {order.status.charAt(0).toUpperCase() + order.status.slice(1).toLowerCase()}
+                                      
                                       </div>
                                     </div>
 
@@ -312,9 +328,9 @@ export default function Dashboard() {
                                           </TableRow>
                                         </TableHeader>
                                         <TableBody>
-                                          {order.items.map((item) => (
+                                          {order.orderItems.map((item) => (
                                             <TableRow key={item.id}>
-                                              <TableCell>{item.name}</TableCell>
+                                              <TableCell>{item.fruit.name}</TableCell>
                                               <TableCell className="text-right">{item.quantity}</TableCell>
                                               <TableCell className="text-right">${item.price.toFixed(2)}</TableCell>
                                               <TableCell className="text-right">
@@ -332,34 +348,11 @@ export default function Dashboard() {
                                       </Table>
                                     </div>
 
-                                    {order.status === "pending" && (
-                                      <div className="flex justify-end gap-2">
-                                        <Button variant="outline" onClick={() => handleCancelOrder(order.id)}>
-                                          <XCircle className="h-4 w-4 mr-2" />
-                                          Cancel Order
-                                        </Button>
-                                        <Button onClick={() => handleFulfillOrder(order.id)}>
-                                          <CheckCircle className="h-4 w-4 mr-2" />
-                                          Fulfill Order
-                                        </Button>
-                                      </div>
-                                    )}
                                   </div>
                                 </DialogContent>
                               </Dialog>
 
-                              {order.status === "pending" && (
-                                <>
-                                  <Button variant="outline" size="icon" onClick={() => handleCancelOrder(order.id)}>
-                                    <XCircle className="h-4 w-4" />
-                                    <span className="sr-only">Cancel order</span>
-                                  </Button>
-                                  <Button variant="default" size="icon" onClick={() => handleFulfillOrder(order.id)}>
-                                    <CheckCircle className="h-4 w-4" />
-                                    <span className="sr-only">Fulfill order</span>
-                                  </Button>
-                                </>
-                              )}
+                              
                             </div>
                           </TableCell>
                         </TableRow>

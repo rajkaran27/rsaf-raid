@@ -5,6 +5,7 @@ import { ShoppingCart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 
 interface FruitItem {
     id: number;
@@ -62,6 +63,35 @@ export default function Cart() {
         return fruits.reduce((total, item) => total + item.fruit.price * item.quantity, 0)
     }
 
+    const checkout = async () => {
+        try {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                alert("Unauthorized: Please log in.");
+                return;
+            }
+
+            const response = await fetch("/api/customer/checkout", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                alert(data.error || "Checkout failed");
+                return;
+            }
+
+            alert("Checkout successful! Your order has been placed.");
+            setFruits([]);
+        } catch (error) {
+            console.error("Error during checkout:", error);
+        }
+    };
 
     return (
         <div className="container mx-auto py-8 px-4">
@@ -80,36 +110,24 @@ export default function Cart() {
                     <div className="md:col-span-2">
                         <Card>
                             <CardContent className="p-6">
-                                <div className="grid gap-6">
-                                    {fruits.map((item) => (
-                                        <div key={item.id} className="flex items-center gap-4">
-
-                                            <div className="flex-grow">
-                                                <h3 className="font-medium">{item.fruit.name}</h3>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                {/* <Button
-                                                    variant="outline"
-                                                    size="icon"
-                                                    onClick={() => decreaseQuantity(item.id)}
-                                                    aria-label={`Decrease quantity of ${item.name}`}
-                                                >
-                                                    <Minus className="h-4 w-4" />
-                                                </Button> */}
-                                                <span className="w-8 text-center">{item.quantity}</span>
-                                                {/* <Button
-                                                    variant="outline"
-                                                    size="icon"
-                                                    onClick={() => increaseQuantity(item.id)}
-                                                    aria-label={`Increase quantity of ${item.name}`}
-                                                >
-                                                    <Plus className="h-4 w-4" />
-                                                </Button> */}
-                                            </div>
-                                            <div className="text-right font-medium">${(item.fruit.price * item.quantity).toFixed(2)}</div>
-                                        </div>
-                                    ))}
-                                </div>
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead>Fruit</TableHead>
+                                            <TableHead className="text-center">Quantity</TableHead>
+                                            <TableHead className="text-right">Price</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {fruits.map((item) => (
+                                            <TableRow key={item.id}>
+                                                <TableCell className="font-medium">{item.fruit.name}</TableCell>
+                                                <TableCell className="text-center">{item.quantity}</TableCell>
+                                                <TableCell className="text-right">${(item.fruit.price * item.quantity).toFixed(2)}</TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
                             </CardContent>
                         </Card>
                     </div>
@@ -128,7 +146,7 @@ export default function Cart() {
                                         <span>Total</span>
                                         <span>${calculateTotal().toFixed(2)}</span>
                                     </div>
-                                    <Button className="w-full mt-4">Checkout</Button>
+                                    <Button className="w-full mt-4" onClick={checkout}>Checkout</Button>
                                 </div>
                             </CardContent>
                         </Card>
